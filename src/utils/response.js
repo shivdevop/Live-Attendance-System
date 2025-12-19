@@ -6,10 +6,10 @@ export const success=(res,data,statusCode=200)=>{
     })
 }
 
-export const error=(res,error,statusCode=400)=>{
+export const error=(res,errorMsg,statusCode=400)=>{
     return res.status(statusCode).json({
         success:false,
-        error:error.message || "InternaL server error"
+        error:errorMsg || "Internal server error"
     })
 
 }
