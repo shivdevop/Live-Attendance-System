@@ -1,6 +1,7 @@
 // import User from "./models/User.js"
 import express from "express"
 import {success,error} from "./utils/response.js"
+import authRoutes from "./routes/auth.routes.js"
 
 const app=express()
 
@@ -33,6 +34,10 @@ app.get("/health",(req,res)=>{
     return success(res,{status:"ok"})
 
 })
+
+//auth routes
+app.use("/api/v1/auth",authRoutes)
+
 
 export default app 
 
