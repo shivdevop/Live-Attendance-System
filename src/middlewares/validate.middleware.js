@@ -6,7 +6,7 @@ export const validateInput=(schema)=>{
             schema.parse(req.body)
             next()
         } catch (err) {
-            return error(res,"invalid input data")
+            return error(res,"invalid input data against schema")
         }
     }
 }
