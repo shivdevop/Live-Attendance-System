@@ -55,3 +55,18 @@ export const login=async(req,res)=>{
 
 }
 
+
+export const getRole=async(req,res)=>{
+    try {
+        const user=req.user
+        if(!user){
+            return error(res,"user not found")
+        }
+
+        return success(res,{role:user.role})
+
+
+    } catch (err) {
+         return error(res,err.message)
+    }
+}
