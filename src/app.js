@@ -2,6 +2,7 @@
 import express from "express"
 import {success,error} from "./utils/response.js"
 import authRoutes from "./routes/auth.routes.js"
+import classRoutes from "./routes/class.routes.js"
 
 const app=express()
 
@@ -37,7 +38,7 @@ app.get("/health",(req,res)=>{
 
 //auth routes
 app.use("/api/v1/auth",authRoutes)
-
+app.use("/api/v1/class",classRoutes)
 
 export default app 
 
