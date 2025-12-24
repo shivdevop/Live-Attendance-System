@@ -61,3 +61,43 @@ export const addStudentToClass=async(req,res)=>{
     }
 
 }
+
+export const getClassDetails=async(req,res)=>{
+    try {
+        const classId=req.params.classId
+        console.log(classId)
+        
+        const {userId,role}=req.user
+
+        //find class 
+        const targetClass=await Class.findById(classId).populate("studentIds","name email")
+        if (!targetClass){
+            return error(res,"class not found")
+        } 
+        console.log("our target class is:",targetClass)
+
+        const ifTeacherOwner= role==="teacher" && userId===targetClass.teacherId.toString()
+        console.log("if teacher owner:",ifTeacherOwner)
+        const ifStudentEnrolled= role==="student" && targetClass.studentIds.some(s=>s._id.toString()===userId)
+        console.log("if student enrolled:",ifStudentEnrolled)
+
+        if(!ifTeacherOwner && !ifStudentEnrolled){
+            return error(res,"you are not authorized to access this class")
+        }
+
+        const classDetails={
+            _id: targetClass._id,
+            className: targetClass.className,
+            teacherId: targetClass.teacherId,
+            students: targetClass.studentIds
+        }
+
+        return success(res,classDetails)
+
+
+
+        
+    } catch (err) {
+        return error(res,err.message)
+    }
+}
