@@ -3,6 +3,7 @@ import express from "express"
 import {success,error} from "./utils/response.js"
 import authRoutes from "./routes/auth.routes.js"
 import classRoutes from "./routes/class.routes.js"
+import studentRoutes from "./routes/student.routes.js"
 
 const app=express()
 
@@ -39,6 +40,7 @@ app.get("/health",(req,res)=>{
 //auth routes
 app.use("/api/v1/auth",authRoutes)
 app.use("/api/v1/class",classRoutes)
+app.use("/api/v1/student",studentRoutes)
 
 export default app 
 
