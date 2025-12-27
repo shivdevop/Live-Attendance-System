@@ -1,6 +1,9 @@
 import {success,error} from "../utils/response.js"
 import Class from "../models/Class.js"
 import User from "../models/User.js"
+import {startSession,clearSession} from "../socket/session.js"
+
+
 
 export const createClass=async(req,res)=>{
     try {
@@ -100,4 +103,31 @@ export const getClassDetails=async(req,res)=>{
     } catch (err) {
         return error(res,err.message)
     }
+}
+
+
+export const startAttendance=async(req,res)=>{
+    try {
+        const {classId}=req.body
+        const teacherId=req.user.userId
+
+        //class should exist 
+        const targetClass=await Class.findById(classId)
+        if(!targetClass){
+            return error(res,"class not found")
+        }
+
+        //ownership check
+        if (targetClass.teacherId.toString()!==teacherId){
+            return error (res,"you are not authorized to start attendance for this class")
+        }
+
+        //start attendance 
+        startSession(classId)
+        return success(res,"attendance started successfully")
+
+    } catch (err) {
+        return error(res,err.message)
+    }
+
 }
