@@ -70,9 +70,33 @@ export const initSocket=(httpServer)=>{
             })
 
          })
-    })
+
+         socket.on("MY_ATTENDANCE",()=>{
+            if socket.user.role!=="student"{
+                return socket.emit("ERROR",{
+                    message:"only students can view their attendance"
+                })
+            }
+
+            if(!activeSession){
+                return scoket.emit("ERROR",{
+                    message:"attendance not yet started"
+                })
+            }
+
+            const studentId=socket.user.userId
+            const attendance=activeSession.attendance[studentId] || "not marked"
+
+            return socket.emit("MY_ATTENDANCE",{
+                studentId,
+                attendance
+            })
+         })
+
+     })
 
     //future websocket events will be added here
+
 
     //socket disconnection event
     io.on("disconnect",(socket)=>{
