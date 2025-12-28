@@ -93,6 +93,39 @@ export const initSocket=(httpServer)=>{
             })
          })
 
+         socket.on("TODAY_SUMMARY",()=>{
+            if(socket.user.role!=="teacher"){
+                return socket.emit("ERROR",{
+                    message:"only teachers can view today's summary"
+                })
+            }
+
+            if(!activeSession){
+                return socket.emit("ERROR",{
+                    message:"attendance not yet started"
+                })
+            }
+
+            const today= new Date().toISOString().split("T")[0]
+            const attendanceSummary=Object.values(activeSession.attendance)
+
+            const present=attendanceSummary.filter(status=>status==="present").length
+            const absent=attendanceSummary.filter(status=>status==="absent").length
+            const total=present+absent
+
+            const summary={
+                date:today,
+                totalStudents:total,
+                present,
+                absent,
+            }
+
+            //broadcast summary to everyone
+            io.emit("TODAY_SUMMARY",summary)
+
+         })
+
+
      })
 
     //future websocket events will be added here
