@@ -47,11 +47,12 @@ export const initSocket=(httpServer)=>{
                 })
             }
 
-            if(!activeSession){
+             // Fix: Check if session exists AND has attendance property
+             if(!activeSession || !activeSession.attendance || !activeSession.classId){
                 return socket.emit("ERROR",{
                     message:"attendance not yet started"
                 })
-            }
+             }
 
             const {studentId,status}=payload || {}
 
@@ -79,7 +80,7 @@ export const initSocket=(httpServer)=>{
                 })
             }
 
-            if(!activeSession){ 
+            if(!activeSession || !activeSession.attendance || !activeSession.classId){ 
                 return socket.emit("ERROR",{
                     message:"attendance not yet started"
                 })
@@ -101,7 +102,7 @@ export const initSocket=(httpServer)=>{
                 })
             }
 
-            if(!activeSession){
+            if(!activeSession || !activeSession.attendance || !activeSession.classId){
                 return socket.emit("ERROR",{
                     message:"attendance not yet started"
                 })
@@ -136,7 +137,7 @@ export const initSocket=(httpServer)=>{
             }
 
             //active session should exist
-            if(!activeSession){
+            if(!activeSession || !activeSession.attendance || !activeSession.classId){
                 return socket.emit("ERROR",{
                     message:"attendance not yet started"
                 })
