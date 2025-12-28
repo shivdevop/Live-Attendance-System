@@ -48,7 +48,7 @@ export const initSocket=(httpServer)=>{
             }
 
             if(!activeSession){
-                return scoket.emit("ERROR",{
+                return socket.emit("ERROR",{
                     message:"attendance not yet started"
                 })
             }
@@ -61,7 +61,7 @@ export const initSocket=(httpServer)=>{
                 })
             }
 
-            //update in memory attendace
+            //update in memory attendance
             activeSession.attendance[studentId]=status
 
             //broadcast update to everyone 
@@ -73,14 +73,14 @@ export const initSocket=(httpServer)=>{
          })
 
          socket.on("MY_ATTENDANCE",()=>{
-            if socket.user.role!=="student"{
+            if(socket.user.role!=="student"){
                 return socket.emit("ERROR",{
                     message:"only students can view their attendance"
                 })
             }
 
-            if(!activeSession){
-                return scoket.emit("ERROR",{
+            if(!activeSession){ 
+                return socket.emit("ERROR",{
                     message:"attendance not yet started"
                 })
             }
@@ -143,7 +143,7 @@ export const initSocket=(httpServer)=>{
             }
 
             try {
-                const {classId,attendace}=activeSession || {}
+                const {classId,attendance}=activeSession || {}
     
                 //fetch class details
                 const classDetails=await Class.findById(classId)
@@ -197,16 +197,12 @@ export const initSocket=(httpServer)=>{
 
          })
 
+        //socket disconnection event
+        socket.on("disconnect",()=>{
+            console.log("socket disconnected",socket.user.userId)
         })
 
-        
-    //future websocket events will be added here
-
-
-    //socket disconnection event
-    io.on("disconnect",(socket)=>{
-        console.log("socket disconnected",socket.user)
-    })
+        })
 
     return io
     }
