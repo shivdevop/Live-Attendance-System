@@ -2,8 +2,9 @@ import {Server} from "socket.io"
 import jwt from "jsonwebtoken"
 import {ENV} from "../config/env.js"
 import {success,error} from "../utils/response.js"
-import {activeSession} from "./session.js"
-
+import {activeSession,clearSession} from "./session.js"
+import Attendance from "../models/Attendance.js"
+import Class from "../models/Class.js"
 
 export const initSocket=(httpServer)=>{
     //create a new socket server 
@@ -125,9 +126,80 @@ export const initSocket=(httpServer)=>{
 
          })
 
+         socket.on("END_ATTENDANCE",async()=>{
 
-     })
+            //teacher only can end attendance
+            if(socket.user.role!=="teacher"){
+                return socket.emit("ERROR",{
+                    message:"only teachers can end attendance"
+                })
+            }
 
+            //active session should exist
+            if(!activeSession){
+                return socket.emit("ERROR",{
+                    message:"attendance not yet started"
+                })
+            }
+
+            try {
+                const {classId,attendace}=activeSession || {}
+    
+                //fetch class details
+                const classDetails=await Class.findById(classId)
+                if(!classDetails){
+                    return socket.emit("ERROR",{
+                        message:"class not found"
+                    })
+                }
+    
+                //get all student ids
+                const studentIds=classDetails.studentIds.map(studentId=>studentId.toString())
+                
+                //finalize attendance
+                let present=0
+                let absent=0
+    
+    
+                const records=studentIds.map(studentId=>{
+                    const status=attendance[studentId] || "absent"
+    
+                    if(status==="present"){
+                        present++
+                    }else{
+                        absent++
+                    }
+    
+                    return {
+                        classId,
+                        studentId,
+                        status
+                    }
+                })
+    
+                //save records to database
+                await Attendance.insertMany(records)
+                clearSession()
+    
+                //broadcast final result
+                io.emit("END_ATTENDANCE",{
+                  message:"attendance ended successfully",
+                  studentsPresent:present,
+                  studentsAbsent:absent
+                })
+            } catch (err) {
+                console.error("error ending attendance",err)
+                return socket.emit("ERROR",{
+                    message:err.message
+                })
+            }
+
+
+         })
+
+        })
+
+        
     //future websocket events will be added here
 
 
