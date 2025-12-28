@@ -2,6 +2,7 @@ import {Server} from "socket.io"
 import jwt from "jsonwebtoken"
 import {ENV} from "../config/env.js"
 import {success,error} from "../utils/response.js"
+import {activeSession} from "./session.js"
 
 
 export const initSocket=(httpServer)=>{
@@ -38,7 +39,37 @@ export const initSocket=(httpServer)=>{
 
     //socket connection event
     io.on("connection",(socket)=>{
-        console.log("socket connected",socket.user)
+         socket.on("ATTENDANCE_MARKED",(payload)=>{
+            if (socket.user.role!=="teacher"){
+                return socket.emit("ERROR",{
+                    message:"only teachers can mark attendance"
+                })
+            }
+
+            if(!activeSession){
+                return scoket.emit("ERROR",{
+                    message:"attendance not yet started"
+                })
+            }
+
+            const {studentId,status}=payload || {}
+
+            if (!studentId || !["present","absent"].includes(status)){
+                return socket.emit("ERROR",{
+                    message:"invalid attendance data"
+                })
+            }
+
+            //update in memory attendace
+            activeSession.attendance[studentId]=status
+
+            //broadcast update to everyone 
+            io.emit("ATTENDANCE_MARKED",{
+                studentId,
+                status
+            })
+
+         })
     })
 
     //future websocket events will be added here
