@@ -124,6 +124,7 @@ export const startAttendance=async(req,res)=>{
 
         //start attendance 
         startSession(classId)
+        console.log("attendance started successfully")
         return success(res,"attendance started successfully")
 
     } catch (err) {
